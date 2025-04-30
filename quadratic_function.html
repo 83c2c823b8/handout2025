@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>二次関数</title>
+</head>
+<body>
+  <h1>二次関数</h1>
+  
+  <p id="equation">式: </p>
+
+  <button onclick="revealAnswer()">答えを見る</button>
+  <button onclick="newProblem()">次の問題</button>
+
+  <div id="answer" style="display:none;">
+    <p id="completed"></p>
+    <p id="axis"></p>
+    <p id="vertex"></p>
+  </div>
+
+  <script>
+    let a, b, c;
+
+    function generateRandomQuadratic() {
+      a = Math.floor(Math.random() * 9 + 1) * (Math.random() < 0.5 ? 1 : -1); // ±1〜±9
+      b = Math.floor(Math.random() * 21 - 10); // -10〜10
+      c = Math.floor(Math.random() * 21 - 10); // -10〜10
+
+      document.getElementById("equation").textContent =
+        `式: f(x) = ${a}x² ${b >= 0 ? '+' : '-'} ${Math.abs(b)}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)}`;
+    }
+
+    // 最大公約数
+    function gcd(m, n) {
+      if (!n) return m;
+      return gcd(n, m % n);
+    }
+
+    // 分数表記（約分して "分子/分母" 形式）
+    function toFraction(numerator, denominator) {
+      if (denominator === 0) return 'undefined';
+      const sign = (numerator * denominator < 0) ? '-' : '';
+      numerator = Math.abs(numerator);
+      denominator = Math.abs(denominator);
+      const d = gcd(numerator, denominator);
+      const num = numerator / d;
+      const den = denominator / d;
+      if (den === 1) return sign + num;
+      return sign + num + '/' + den;
+    }
+
+    function revealAnswer() {
+      // h = -b / 2a, k = f(h) = ah^2 + bh + c
+      const h_num = -b;
+      const h_den = 2 * a;
+
+      const h_frac = toFraction(h_num, h_den);
+      const h = h_num / h_den;
+      const k_val = a * h * h + b * h + c;
+
+      // k は小数だが、分母の最小公倍数を使って表現する
+      const k_num = a * h_num * h_num + 2 * a * b * h_num + 4 * a * c;
+      const k_den = 4 * a;
+
+      const k_frac = toFraction(k_num, k_den);
+
+      document.getElementById("completed").textContent =
+        `平方完成形: f(x) = ${a}(x ${h_num > 0 ? '-' : '+'} ${toFraction(Math.abs(h_num), Math.abs(h_den))})² ${k_val >= 0 ? '+' : '-'} ${k_frac.replace('-', '')}`;
+      document.getElementById("axis").textContent = `軸: x = ${h_frac}`;
+      document.getElementById("vertex").textContent = `頂点: (${h_frac}, ${k_frac})`;
+
+      document.getElementById("answer").style.display = "block";
+    }
+
+    function newProblem() {
+      generateRandomQuadratic();
+      document.getElementById("answer").style.display = "none";
+      document.getElementById("completed").textContent = "";
+      document.getElementById("axis").textContent = "";
+      document.getElementById("vertex").textContent = "";
+    }
+
+    window.onload = generateRandomQuadratic;
+  </script>
+</body>
+</html>
+
